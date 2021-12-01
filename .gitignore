@@ -1,3 +1,14 @@
+# Vivado
+*.xpr
+*.hw
+*.cache
+*.runs
+*.ip_user_files
+*.sim
+
+# Advent of Code
+input.txt
+
 # Prerequisites
 *.d
 
