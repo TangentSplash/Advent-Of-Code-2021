@@ -11,4 +11,6 @@ class YellowSubmarine
         void move_horz(int h);
         int get_depth();
         int get_horz();
+        void print_depth();
+        void print_horiz();
 };

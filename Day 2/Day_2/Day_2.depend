@@ -1,0 +1,13 @@
+# depslib dependency file v1.0
+1638483777 source:c:\users\ciara\documents\advent-of-code-2021\day 2\dive.cpp
+	<iostream>
+	<fstream>
+	<string>
+	"YellowSubmarine.h"
+
+1638483232 c:\users\ciara\documents\advent-of-code-2021\day 2\yellowsubmarine.h
+
+1638483357 source:c:\users\ciara\documents\advent-of-code-2021\day 2\yellowsubmarine.cpp
+	"YellowSubmarine.h"
+	<iostream>
+

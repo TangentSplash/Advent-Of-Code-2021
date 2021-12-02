@@ -17,7 +17,7 @@ int main()
     int mag;
 
     YellowSubmarine yellow_sub;
-    while (file)
+    while (file.peek() != EOF)
     {
         file >> dir >> mag;
         if (dir=="forward")
@@ -29,9 +29,9 @@ int main()
     }
     file.close();
 
-    cout << "The horizontal position is " << yellow_sub.get_horz() << endl
+    cout << "\nThe horizontal position is " << yellow_sub.get_horz() << endl
          << "and the depth is " << yellow_sub.get_depth() << endl << endl
-         << "the answer is therefore " << yellow_sub.get_depth()*yellow_sub.get_horz();
+         << "The answer is therefore " << yellow_sub.get_depth()*yellow_sub.get_horz() << endl << endl;
 
     return 0;
 }
