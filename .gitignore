@@ -13,6 +13,9 @@ input.txt
 *.code-workspace
 *.vscode
 
+# CodeBlocks
+CodeBlocks
+
 # Prerequisites
 *.d
 
