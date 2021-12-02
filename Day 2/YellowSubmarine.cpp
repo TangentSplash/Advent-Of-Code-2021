@@ -6,23 +6,26 @@ YellowSubmarine::YellowSubmarine()
 {
     depth=0;
     horizontal=0;
+    aim=0;
 }
 
 YellowSubmarine::YellowSubmarine(int d, int h)
 {
     depth=d;
     horizontal=h;
+    aim=0;
 }
 
 void YellowSubmarine::change_depth(int d)
 {
-    depth+=d;
+    aim+=d;
     print_depth();
 }
 
 void YellowSubmarine::move_horz(int h)
 {
     horizontal+=h;
+    depth+=h*aim;
     print_horiz();
 }
 

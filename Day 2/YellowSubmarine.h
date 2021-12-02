@@ -3,6 +3,7 @@ class YellowSubmarine
     private:
         int depth;
         int horizontal;
+        int aim;
 
     public:
         YellowSubmarine();
