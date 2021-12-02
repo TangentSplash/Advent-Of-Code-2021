@@ -9,6 +9,10 @@
 # Advent of Code
 input.txt
 
+# Visual Studio
+*.code-workspace
+*.vscode
+
 # Prerequisites
 *.d
 
