@@ -17,6 +17,7 @@ module Depth_IncreaseseTB;
     
     //Output
     wire [10:0] num_increases;
+    wire [14:0] V1,V2;
     
     //Data
     reg [13:0] measurements [0:2000];
@@ -24,7 +25,7 @@ module Depth_IncreaseseTB;
     reg [10:0] prev_increases;
     
 //Instantiate model    
-Depth_Increases uut (clock,reset,depth,new_reading,num_increases);
+Depth_Increases uut (clock,reset,depth,new_reading,num_increases,V1,V2);
 
    // Generate clock signal
    initial
@@ -72,39 +73,46 @@ Depth_Increases uut (clock,reset,depth,new_reading,num_increases);
 	       depth=measurements[read];
 	       new_reading=1'b1;
        @ (posedge clock)
-	       new_reading=1'b0;  
-	       #600
-	       if (num_increases>prev_increases)
+	       new_reading=1'b0; 
+       #200
+       if (num_increases>prev_increases)
 	       begin
 	           prev_increases = num_increases;
-	           $fdisplay(outfile,"Depth %d is greater than depth %d. Number of increases is %d",measurements[read-1],measurements[read-2],num_increases);
-	           $display("Depth %d is greater than depth %d. Number of increases is %d",measurements[read-1],measurements[read-2],num_increases);  
+	           $fdisplay(outfile,"Depth sum %d is greater than depth sum %d. Number of increases is %d",V1,V2,num_increases);
+	           $display("Depth sum %d is greater than depth sum %d. Number of increases is %d",V1,V2,num_increases);  
 	       end
-	       else
+       else
 	       begin
-	           $fdisplay(outfile,"Depth %d is not greater than depth %d. Number of increases is still %d",measurements[read-1],measurements[read-2],num_increases);
-	           $display("Depth %d is not greater than depth %d. Number of increases is still %d",measurements[read-1],measurements[read-2],num_increases); 
+	           $fdisplay(outfile,"Depth sum %d is not greater than depth sum %d. Number of increases is still %d",V1,V2,num_increases);
+	           $display("Depth sum %d is not greater than depth sum %d. Number of increases is still %d",V1,V2,num_increases); 
 	       end
+        
+	       #600
+	       
 	       @ (negedge clock); 
         end
-        new_reading=1'b1;
-        #200
-        new_reading=1'b0;
-        #200
-        if (num_increases>prev_increases)
+        
+        
+        @ (posedge clock);
+	       new_reading=1'b1;
+       @ (posedge clock)
+	       new_reading=1'b0; 
+       #200
+       if (num_increases>prev_increases)
 	       begin
 	           prev_increases = num_increases;
-	           $fdisplay(outfile,"Depth %d is greater than depth %d. Number of increases is %d",measurements[read-1],measurements[read-2],num_increases);
-	           $display("Depth %d is greater than depth %d. Number of increases is %d",measurements[read-1],measurements[read-2],num_increases);  
+	           $fdisplay(outfile,"Depth sum %d is greater than depth sum %d. Number of increases is %d",V1,V2,num_increases);
+	           $display("Depth sum %d is greater than depth sum %d. Number of increases is %d",V1,V2,num_increases);  
 	       end
-	       else
+       else
 	       begin
-	           $fdisplay(outfile,"Depth %d is not greater than depth %d. Number of increases is still %d",measurements[read-1],measurements[read-2],num_increases);
-	           $display("Depth %d is not greater than depth %d. Number of increases is still %d",measurements[read-1],measurements[read-2],num_increases); 
+	           $fdisplay(outfile,"Depth sum %d is not greater than depth sum %d. Number of increases is still %d",V1,V2,num_increases);
+	           $display("Depth sum %d is not greater than depth sum %d. Number of increases is still %d",V1,V2,num_increases); 
 	       end
+       
        #4000
-       $fdisplay(outfile,"The total number of depth increases is %d",num_increases);
-       $display("The total number of depth increases is %d",num_increases);
+       $fdisplay(outfile,"The total number of depth increases over the sliding sum, is %d",num_increases);
+       $display("The total number of depth increases over the sliding sum, is %d",num_increases);
        $fclose(outfile);
        $stop;	
 	end
