@@ -16,6 +16,7 @@ module Binary_Diagnostic(
     input data,
     output reg most
     );
+    
     reg [10:0] length;
     reg [10:0] sum;
     
@@ -36,7 +37,14 @@ module Binary_Diagnostic(
             end
             if(!data && length>0)
             begin
-                most = sum > (length/2);
+                if (sum*2==length)
+                begin
+                    most=1'b1;
+                end
+                else 
+                begin
+                    most = sum > (length/2);
+                end
             end
         end
     end

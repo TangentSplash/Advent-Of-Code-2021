@@ -10,34 +10,30 @@
 
 module Binary_Diagnostic_TB;
 	localparam CONSOLE = 1;		// file handle for printing to console
+	localparam NOBITS = 12;
+	localparam NOREADINGS = 1000;
 
 	// Inputs to module under test
-	reg clock, reset, is_data;
-	reg [11:0] bits;
+	reg clock, reset;
+	reg [NOBITS-1:0] is_data;
+	reg [NOBITS-1:0] bits;
 
 	// Outputs from module under test
-	wire [11:0]most;
-	
-	
-	reg [11:0] stim [0:1000];
-	
-	// Internal testbench signals
-	integer test;
-	integer outfile;	// file handle
+	wire [NOBITS-1:0]most;
 
+	// Internal testbench signals
+	integer test,i,j,length;
+	integer outfile;	// file handle
+	reg [NOBITS:0] stim [0:NOREADINGS];
+	integer run;   //Run 0 for oxegyn, Run 1 for CO2
+	reg [NOBITS-1:0] ans [0:1],bitno;
+    genvar k;
 	// Instantiate the hardware modules
-	Binary_Diagnostic Bit0 (.clock(clock),.reset(reset),.data(is_data),.bit(bits[0]),.most(most[0]));
-    Binary_Diagnostic Bit1 (.clock(clock),.reset(reset),.data(is_data),.bit(bits[1]),.most(most[1]));
-    Binary_Diagnostic Bit2 (.clock(clock),.reset(reset),.data(is_data),.bit(bits[2]),.most(most[2]));
-    Binary_Diagnostic Bit3 (.clock(clock),.reset(reset),.data(is_data),.bit(bits[3]),.most(most[3]));
-    Binary_Diagnostic Bit4 (.clock(clock),.reset(reset),.data(is_data),.bit(bits[4]),.most(most[4]));
-    Binary_Diagnostic Bit5 (.clock(clock),.reset(reset),.data(is_data),.bit(bits[5]),.most(most[5]));
-    Binary_Diagnostic Bit6 (.clock(clock),.reset(reset),.data(is_data),.bit(bits[6]),.most(most[6]));
-    Binary_Diagnostic Bit7 (.clock(clock),.reset(reset),.data(is_data),.bit(bits[7]),.most(most[7]));
-    Binary_Diagnostic Bit8 (.clock(clock),.reset(reset),.data(is_data),.bit(bits[8]),.most(most[8]));
-    Binary_Diagnostic Bit9 (.clock(clock),.reset(reset),.data(is_data),.bit(bits[9]),.most(most[9]));
-    Binary_Diagnostic Bit10 (.clock(clock),.reset(reset),.data(is_data),.bit(bits[10]),.most(most[10]));
-    Binary_Diagnostic Bit11 (.clock(clock),.reset(reset),.data(is_data),.bit(bits[11]),.most(most[11]));
+	for (k=0;k<NOBITS;k=k+1)
+	begin: Instantiate
+	   Binary_Diagnostic Bit (.clock(clock),.reset(reset),.data(is_data[k]),.bit(bits[k]),.most(most[k]));
+	end
+
     
 	// Generate clock signal at 10 MHz
 	initial 
@@ -50,31 +46,62 @@ module Binary_Diagnostic_TB;
 	// Apply input signals and check results
 	initial
 		begin
-			reset = 1'b1;		// set all inputs to 0 at start
-			is_data = 1'b0;
-			
-			#200
-			reset=1'b0;
-			is_data=1'b1;
-			
-			// Read test vectors from file into array
-			$readmemb("input.txt", stim);
-			
-			// Open file for recording results
+		
+		    // Open file for recording results
 			outfile = $fopen("BinaryDiagnostics_results.txt");
 			
-			for (test = 0; test < 1000; test = test + 1)
-				begin
-					@ (negedge clock);	// wait for negedge of clock, then apply stimulus
-					bits=stim[test];
-				end
-			@(negedge clock)
-            is_data=1'b0;
-
-			#200;		// run another 2 clock cycles, then summarise results
-            $fdisplay(outfile|CONSOLE, "MCB are %b therfore LCB are %b",most,~most);
-            $fdisplay(outfile|CONSOLE, "MCB has value %d and LCB has value %d",most,~most);
-            $fdisplay(outfile|CONSOLE, "The answer is therefore %d",(most)*(~most));
+			for (run=0;run<2;run=run+1)
+			begin
+                reset = 1'b1;		// set all inputs to 0 at start
+                is_data = 12'd0;
+                
+                #200
+                reset=1'b0;
+                is_data=12'b100000000000;
+                //is_data=12'b000000010000;
+                bitno=12'd0;
+                
+                // Read test vectors from file into array
+                $readmemb("input.txt", stim);
+                //$readmemb("inputtest.txt", stim);
+                   
+                i=NOBITS-1;
+                length=NOREADINGS;
+                while (length > 1)
+                begin
+                    for (test = 0; test < length; test = test + 1)
+                        begin
+                            @ (negedge clock);	// wait for negedge of clock, then apply stimulus
+                            bits=stim[test];
+                        end
+                    @(negedge clock)
+                    bitno=is_data;
+                    is_data=12'd0;
+        
+                    #200;		// run another 2 clock cycles, then summarise results
+                    $fdisplay(outfile|CONSOLE, "Run %d, bit %d, Most Common Bit is %b",run,i,most[i]);
+                    j=0;
+                    for (test=0;test<length;test=test+1)
+                    begin
+                        if((!run && stim[test][i]==most[i]) || (run && stim[test][i]==!(most[i])))
+                        begin
+                            stim[j]=stim[test];
+                            $fdisplay(1,"%b",stim[j]);
+                            j=j+1;
+                        end
+                    end
+                    length=j;
+                    i=i-1;
+                    is_data=bitno >> 1;
+                    $fdisplay(outfile|CONSOLE, "Run %d,%d values remaining",run,length);
+                end
+                $fdisplay(outfile|CONSOLE, "Finished run %d",run);
+                ans[run]=stim[0];
+            end
+            
+            $fdisplay(outfile|CONSOLE, "Oxegyn value is %b, which equals %d",ans[0],ans[0]);
+            $fdisplay(outfile|CONSOLE, "C02 value is    %b, which equals %d",ans[1],ans[1]);
+            $fdisplay(outfile|CONSOLE, "This means the answer is %d",ans[0]*ans[1]);
 
 			$fclose(outfile);		// close the output file
 			$stop;					// stop the simulation	
