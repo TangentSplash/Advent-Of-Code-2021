@@ -1,4 +1,4 @@
-INPUT = "C:\\Users\\ciara\\Documents\\Python\\AdventOfCode\\2021\\Day 4\\input.txt"
+INPUT = "Day 4\\input.txt"
 import math
 import CardObject
 Card=CardObject.Card
@@ -30,17 +30,38 @@ for line in Input:
             Cards.append(Card(size))
         Cards[card].declareLine(nums)
 
+First=True
+Last=False
 run=True
+
 for Number in callednums:
     if run:
-        for Card in Cards:
+        i=0
+        cards=True
+        while cards:
+        #for Card in Cards:
+            Card=Cards[i]
             Bingo=Card.numCalled(Number)
             if Bingo:
-                uncalled=Card.sumUncalled()
-                number=Number
-                run=False
-                break
+                if First:
+                    uncalled=Card.sumUncalled()
+                    number=Number
+                    First=False
+                    print("The answer to part 1 is " + str(uncalled*number))
+                if Last:
+                    uncalled=Card.sumUncalled()
+                    number=Number
+                    run=False
+                    break
+                Cards.remove(Card)
+                i=i-2
+                if len(Cards)==1:
+                    Last=True
+            i=i+1
+            if i==len(Cards):
+                cards=False
     else:
         break
+print("The answer to part 2 is " + str(uncalled*number))
+            
         
-print("The answer is " + str(uncalled*number))
