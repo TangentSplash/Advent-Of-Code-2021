@@ -8,6 +8,7 @@
 
 # Advent of Code
 input.txt
+inputtest.txt
 
 # Visual Studio
 *.code-workspace
